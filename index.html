@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Food Giphs</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+</head>
+
+<body>
+    <h1 id="head">Food Search</h1>
+
+    <div id="foodButtons">
+
+    </div>
+
+    <form id="food-form">
+        <label for="food-input">Add a food item:</label><br>
+        <input type="text" id="food-input"><br>
+        <input id="addFood" type="submit" value="Submit">
+    </form>
+
+    <div id="food">
+
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+
+
+var foodArray = ["Steak", "Potatoes", "Pasta", "Shrimp", "Spinach", "Beans", "Fish", "Chicken", "Tofu"];
+
+
+function displayFood() {
+    var apiKey = "8aNjAh9OFyRnujLfquS6q4RZ6mcA8YJ3";
+    var queryURL = "https://api.giphy.com/v1/gifs/search?&limit=10&api_key=" + apiKey;
+
+    var foodItem = $(this).attr("data-name");
+    $.ajax({
+      url: queryURL,
+      method: "GET"
+    }).then(function(response) {
+      
+    var foodDiv = $("<div class='foods'>");
+    var rating = response.data.foodArray[foodItem].rating;
+    var gif = response.data.foodArray[foodItem].images.fixed_height.url;
+
+    var pRat = $("<p>").text("Rating: " + rating);
+    foodDiv.prepend(pRat);
+    pRat.append(gif);
+    });
+}
+
+
+
+function renderButtons() {
+    $("#foodButtons").empty();
+
+    for (var i = 0; i<foodArray.length; i++) {
+        var a = $("<button>");
+        a.addClass("food-btn");
+        a.attr("data-name", foodArray[i]);
+        a.text(foodArray[i]);
+        $("#foodButtons").append(a);
+    }
+};
+
+$("#addFood").on("click", function(event) {
+    event.preventDefault();
+
+    var food = $("food-input").val().trim();
+
+    foodArray.push(food);
+    renderButtons();
+});
+
+$(document).on("click", ".food-btn", displayFood);
+renderButtons();
+
+</script>
+</body>
+</html>
