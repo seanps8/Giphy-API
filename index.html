@@ -22,10 +22,14 @@
         <input id="addFood" type="submit" value="Submit">
     </form>
 
-    <div id="food-display">
+    <div class="row">
+        <div class="col-lg-6">
+            <div id="food-display">
 
+            </div>
+        </div>
     </div>
-
+    
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
 
@@ -59,13 +63,14 @@ function displayFood() {
         if (rating === "") {
             rating === "none";
         };
-        
+        console.log(response);
+        console.log(rating);
         foodDiv.addClass("gif-container");
         foodDiv.attr("data-name", "unclicked");
 
         var gifRating = $("<p>");
         gifRating.text("Rating: " + rating);
-        gifRating.append(foodDiv);
+        foodDiv.append(gifRating);
 
         var gifImage = $("<img>");
         gifImage.addClass("still-image");
@@ -139,7 +144,7 @@ $("#addFood").on("click", function(event) {
 });
 
 $(document).on("click", ".food-btn", displayFood);
-$(document).on('click', '.gif_container', showGif);
+$(document).on('click', '.gif-container', showGif);
 renderButtons();
 
 });
