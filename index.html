@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Food Giphs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 </head>
 
@@ -21,7 +22,7 @@
         <input id="addFood" type="submit" value="Submit">
     </form>
 
-    <div id="food">
+    <div id="food-display">
 
     </div>
 
@@ -30,39 +31,88 @@
 
 
 
-var foodArray = ["Steak", "Potatoes", "Pasta", "Shrimp", "Spinach", "Beans", "Fish", "Chicken", "Tofu"];
+var foodArray = ["steak", "potatoes", "pasta", "shrimp", "spinach", "beans", "fish", "chicken", "tofu"];
+
+$(document).ready(function() {
 
 
 function displayFood() {
+    $("#food-display").empty();
+    var foodItem = $(this).attr("data-name").replace(/ /g, '+');
+    
     var apiKey = "8aNjAh9OFyRnujLfquS6q4RZ6mcA8YJ3";
-    var queryURL = "https://api.giphy.com/v1/gifs/search?&limit=10&api_key=" + apiKey;
+    var limit = "10";
+    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + foodItem + "&limit=" + limit + "&api_key=" + apiKey;
 
-    var foodItem = $(this).attr("data-name");
     $.ajax({
       url: queryURL,
       method: "GET"
     }).then(function(response) {
-      
-    var foodDiv = $("<div class='foods'>");
-    var rating = response.data.foodArray[foodItem].rating;
-    var gif = response.data.foodArray[foodItem].images.fixed_height.url;
+    
+    for (var i = 0; i<response.data.length; i++) {
+        var foodDiv = $("<div class='foods'>");
+        
+        var rating = response.data[i].rating;
+        var movingGif = response.data[i].images.fixed_height.url;
+        var stillGif = response.data[i].images.fixed_height_still.url;
 
-    var pRat = $("<p>").text("Rating: " + rating);
-    foodDiv.prepend(pRat);
-    pRat.append(gif);
+        if (rating === "") {
+            rating === "none";
+        };
+        
+        foodDiv.addClass("gif-container");
+        foodDiv.attr("data-name", "unclicked");
+
+        var gifRating = $("<p>");
+        gifRating.text("Rating: " + rating);
+        gifRating.append(foodDiv);
+
+        var gifImage = $("<img>");
+        gifImage.addClass("still-image");
+        gifImage.attr("src", stillGif);
+        foodDiv.append(gifImage);
+
+        var currentGif = $("<img>");
+        currentGif.addClass("moving-image");
+        currentGif.attr("src", movingGif);
+        currentGif.hide();
+        foodDiv.append(currentGif);
+
+        $("#food-display").append(foodDiv);
+
+    }
+
     });
 }
 
+function showGif() {
+
+    var clickTest = $(this).attr('data-name');
+    if (clickTest === "unclicked") {
+        var gifChildren = $(this).children();
+
+        $(gifChildren[1]).hide();
+        $(gifChildren[2]).show();
+        $(this).attr("data-name", "clicked");
+    }
+    else {
+        var gifChildren = $(this).children();
+
+        $(gifChildren[2]).hide();
+        $(gifChildren[1]).show();
+        $(this).attr("data-name", "unclicked");
+    }
+}
 
 
 function renderButtons() {
     $("#foodButtons").empty();
 
     for (var i = 0; i<foodArray.length; i++) {
-        var a = $("<button>");
+        var a = $("<button class='btn btn-primary'>");
         a.addClass("food-btn");
         a.attr("data-name", foodArray[i]);
-        a.text(foodArray[i]);
+        a.html("<span>" + foodArray[i] + "</span>");
         $("#foodButtons").append(a);
     }
 };
@@ -70,15 +120,29 @@ function renderButtons() {
 $("#addFood").on("click", function(event) {
     event.preventDefault();
 
-    var food = $("food-input").val().trim();
+    var food = $("#food-input").val().trim().toLowerCase();
 
-    foodArray.push(food);
-    renderButtons();
+    var unique = true;
+    for (var i = 0; i<foodArray.length; i++) {
+        if (foodArray[i] === food) {
+            unique = false;
+    }};
+
+    if (food === "") {
+        alert("Please enter a food item");
+    } else if (unique) {
+        foodArray.push(food);
+        renderButtons();
+    } else {
+        alert("You have already entered a " + food + " button!");
+    }
 });
 
 $(document).on("click", ".food-btn", displayFood);
+$(document).on('click', '.gif_container', showGif);
 renderButtons();
 
+});
 </script>
 </body>
 </html>
